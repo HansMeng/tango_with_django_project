@@ -8,6 +8,11 @@ from django.urls import reverse
 from rango.forms import PageForm
 
 def index(request):
+    # Query the database for a list of ALL categories currently stored.
+    # Order the categories by the number of likes in descending order.
+    # Retrieve the top 5 only -- or all if less than 5.
+    # Place the list in our context_dict dictionary (with our boldmessage!)
+    # that will be passed to the template engine.
     category_list = Category.objects.order_by('-likes')[:5]
     page_list = Page.objects.order_by('-views')[:5]
 
@@ -27,6 +32,7 @@ def show_category(request, category_name_slug):
     # Create a context dictionary which we can pass
     # to the template rendering engine.
     context_dict = {}
+
     try:
         # Can we find a category name slug with the given name?
         # If we can't, the .get() method raises a DoesNotExist exception.
@@ -58,7 +64,7 @@ def add_category(request):
 
         if form.is_valid():
             form.save(commit=True)
-            return redirect('/rango/')
+            return redirect(reverse('rango:index'))
         else:
             print(form.errors)
     
@@ -72,7 +78,7 @@ def add_page(request, category_name_slug):
     
     # You cannot add a page to a Category that does not exist... DM
     if category is None:
-        return redirect('/rango/')
+        return redirect(reverse('rango:index'))
 
     form = PageForm()
 
